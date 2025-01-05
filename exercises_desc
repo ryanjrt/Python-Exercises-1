@@ -1,0 +1,60 @@
+**Exercise 2: To-Do List Application**
+
+**Context:** This exercise introduces you to working with lists and basic CRUD (Create, Read, Update, Delete) operations, which are foundational for building applications.
+
+**Problem:** Create a simple to-do list program where the user can:
+
+1. Add tasks to a list.
+2. View all tasks.
+3. Mark a task as completed (remove it from the list).
+4. Exit the program.
+
+**Challenge:**
+
+- Save the tasks to a file so that the to-do list persists when the program restarts.
+- Add a feature to prioritize tasks (e.g., high, medium, low).
+
+**Exercise 3: Weather Forecaster**
+
+**Context:** Work with APIs to learn about fetching and processing real-world data. This is an essential skill for building practical applications.
+
+**Problem:** Use a free weather API (like OpenWeatherMap) to:
+
+1. Ask the user for a city name.
+2. Fetch the current weather for that city.
+3. Display the temperature, weather condition, and humidity.
+
+**Challenge:**
+
+- Format the output nicely.
+- Allow the user to search for weather in multiple cities in one session.
+
+**Exercise 4: Personal Expense Tracker**
+
+**Context:** Learn about data structures (like dictionaries) and file I/O. This exercise is a stepping stone toward building more complex apps.
+
+**Problem:** Create a program that tracks your expenses. It should:
+
+1. Allow the user to add an expense (description, amount, and category).
+2. View a summary of all expenses grouped by category.
+3. Save the data to a file for future sessions.
+
+**Challenge:**
+
+- Add a feature to filter expenses by category or month.
+- Implement a monthly budget tracker and notify the user if they exceed it.
+
+**Exercise 5: Mini Quiz Game**
+
+**Context:** This introduces conditionals, loops, and basic error handling, all while being engaging to code.
+
+**Problem:** Create a quiz game that:
+
+1. Asks the user five multiple-choice questions.
+2. Tracks their score.
+3. Provides feedback after each question (e.g., correct or wrong) and at the end.
+
+**Challenge:**
+
+- Randomize the order of questions each time the game is played.
+- Add a timer to limit the time for each question.
