@@ -48,6 +48,7 @@ def mark_task_completed(tasks):
 def main():
     """Main function to run the to-do list program."""
     tasks = []
+
     while True:
         display_menu()
         choice = input("Enter your choice (1-4): ").strip()
@@ -59,6 +60,9 @@ def main():
         elif choice == "3":
             mark_task_completed(tasks)
         elif choice == "4":
+            with open('to_do_list.txt', 'w') as f:
+                for i, task in enumerate(tasks, start=1):
+                    f.write(f"{i}. {task}")
             print("Exiting the program. Goodbye!")
             break
         else:
