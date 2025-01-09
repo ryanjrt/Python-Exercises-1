@@ -1,3 +1,8 @@
+class Task:
+    def __init__(self, task_name, priority):
+        self.task_name = task_name
+        self.priority = priority
+
 def display_menu():
     """Displays the menu options to the user."""
     print("\nTo-Do List Menu:")
@@ -8,23 +13,66 @@ def display_menu():
 
 
 def add_task(tasks):
-    """Adds a task to the to-do list."""
-    task = input("Enter the task you want to add: ").strip()
-    if task:
-        tasks.append(task)
-        print(f"Task '{task}' added to the list!")
-    else:
-        print("Task cannot be empty.")
 
+    """Captures the task to be added"""
+    while True:
+        entry1 = input("Enter the task you want to add: ").strip()
+
+        if not entry1:
+            print("Task cannot be empty.")
+
+        else:
+            break
+
+
+    """Sets a priority for the task to be added"""
+    valid_priorities = ["Low", "Medium", "High"]
+
+    while True:
+        entry1_priority = input("Please input task priority (Low/Medium/High): ") 
+
+        if not entry1_priority:
+            entry1_priority = "Medium"
+
+        if entry1_priority not in valid_priorities:
+            print("Invalid priority. Please choose from Low/Medium/High.")
+
+        else:
+            break
+    
+    """Creates the task"""
+    task = Task(entry1, entry1_priority)
+    tasks.append(task)
 
 def view_tasks(tasks):
     """Displays all tasks in the to-do list."""
+
     if tasks:
         print("\nYour To-Do List:")
+        print("Task             Priority")
         for i, task in enumerate(tasks, start=1):
-            print(f"{i}. {task}")
+            print(f"{i}. {task.task_name}, {task.priority}")
     else:
         print("\nYour to-do list is empty!")
+
+def sort_tasks(tasks):
+
+    high_prio = [task for task in tasks if task.priority == "High" ]
+    med_prio = [task for task in tasks if task.priority == "Medium" ]
+    low_prio = [task for task in tasks if task.priority == "Low" ]
+
+    print('\nPriority - High:')
+    for i, task in enumerate(high_prio, start = 1):
+        print(f' {i}. {task.task_name}')
+    
+    print('\nPriority - Medium:')
+    for i, task in enumerate(med_prio, start = 1):
+        print(f' {i}. {task.task_name}')
+    
+    print('\nPriority - Low:')
+    for i, task in enumerate(low_prio, start = 1):
+        print(f' {i}. {task.task_name}')
+
 
 
 def mark_task_completed(tasks):
@@ -47,7 +95,21 @@ def mark_task_completed(tasks):
 
 def main():
     """Main function to run the to-do list program."""
-    tasks = []
+    import json
+
+    try:
+        with open('tasks.json', 'r') as file:
+            tasks_load = json.load(file)
+            print(tasks_load)
+            tasks = []
+            for task in tasks_load:
+                tasks.append(task['Task_name'], task['Priority'])
+                
+            print(tasks)
+
+    except:
+        tasks = []
+        print('No existing file. Please create a new list.')       
 
     while True:
         display_menu()
@@ -56,13 +118,16 @@ def main():
         if choice == "1":
             add_task(tasks)
         elif choice == "2":
-            view_tasks(tasks)
+            sort_tasks(tasks)
         elif choice == "3":
             mark_task_completed(tasks)
         elif choice == "4":
-            with open('to_do_list.txt', 'w') as f:
-                for i, task in enumerate(tasks, start=1):
-                    f.write(f"{i}. {task}")
+            task_dict = {}
+            for i, task in enumerate(tasks, start=1):
+                task_dict[i] = {"Task name": task.task_name, "Priority": task.priority}
+            
+            with open('tasks.json', 'w') as file:
+                json.dump(task_dict, file)
             print("Exiting the program. Goodbye!")
             break
         else:
