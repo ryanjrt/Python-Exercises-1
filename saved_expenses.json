@@ -1,0 +1,14 @@
+[
+    {
+        "Description": "Pickleball",
+        "Amount": 22.0,
+        "Currency": "USD",
+        "Category": "Sport"
+    },
+    {
+        "Description": "Futsal",
+        "Amount": 24.0,
+        "Currency": "USD",
+        "Category": "Sport"
+    }
+]
