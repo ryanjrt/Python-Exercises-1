@@ -1,3 +1,10 @@
+import threading
+import time
+import sys
+import random
+
+
+
 class Question:
     def __init__(self, question, choices, answer):
         self.question = question
@@ -23,10 +30,13 @@ def main():
 
 # Initialize game
 def game(user_id):
+    
     #Initialize questions and scorecard
     question_list = load_questions()
     score = 0
     max_score = 5
+    
+
     
     #Generate questions and check
     print("\n ***Lets begin!*** \n")
@@ -34,15 +44,25 @@ def game(user_id):
         print(q.question)
         print(q.choices)
         print("You have 15 seconds to answer each question!")
-        time_out = timer(15)
+        
+        #Initialize timer duration
 
-        while time_out == False:
-            user_input = input("Please enter your answer (A/B/C):   ")
+        timer_thread = threading.Thread(target=timer, args=(15,))
+        timer_thread.start()
+        timer_event = threading.Event()
+        
+        user_input = input("Please enter your answer (A/B/C):   ")
+        
+        while not timer_event.is_set():
             if user_input == q.answer:
                 print("Well done! +1")
                 score += 1
             else:
                 print(f"You got it wrong :( The answer was  {q.answer}")
+        if timer_event.is_set():
+            print("Time's up! Moving to the next question.")
+
+
 
     #Display results
     print(f"Thank you for taking the quiz, {user_id}! Your score was {score} out of {max_score}") 
@@ -51,9 +71,7 @@ def game(user_id):
     else:
         print("Well done, you got everything right  :)") 
     
-def timer(t):
-    import time
-    import sys
+def timer(t, timer_event):
     
     while t > 0:
         time.sleep(1)
@@ -61,15 +79,14 @@ def timer(t):
         if t == 10:
             print(f"{t} seconds left!", flush=True)
             sys.stdout.flush()
-            
-    print("Time's up!")
+
+    timer_event.set()
     
     return True
         
 #validate answer(user_input, q):
 
 def load_questions():
-    import random
     
     Q1 = Question("Who is the CEO of Meta?",
             ["A. Elon Musk", "B. Mark Zuckerberg", "C. Bill Gates"],
