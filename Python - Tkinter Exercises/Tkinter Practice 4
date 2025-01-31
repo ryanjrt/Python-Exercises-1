@@ -1,0 +1,26 @@
+#Simple Layout with grid()
+#Objective: Create a basic calculator layout with buttons for digits 0-9 arranged in a grid.
+
+import tkinter as tk
+
+root = tk.Tk()
+root.geometry("400x800")
+root.title("Calculator layout")
+frame = tk.Frame(root, pady=60)
+
+#Initialize buttons container
+buttons = []
+
+#Create numerical buttons
+for i in range(9):
+    button = tk.Button(
+              frame,
+              text =f"{i}",
+              width = 3,
+              height = 3)
+    button.grid(row = i // 3, column = i % 3)
+    buttons.append(button)
+
+frame.pack()
+
+tk.mainloop()

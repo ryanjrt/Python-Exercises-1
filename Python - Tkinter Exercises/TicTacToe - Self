@@ -1,0 +1,105 @@
+import tkinter as tk
+import random
+
+#Create functions
+def button_press(row, column):
+    global current_player     
+    
+    if buttons[(row, column)]["text"] != "":
+        return
+    
+    else: 
+        buttons[(row, column)].config(text = current_player)
+    
+    if check_winner() == None:
+        current_player = players[0] if current_player == players[1] else players[1] #Switch players
+        turn_indicator.config(text = f"{current_player}'s turn")
+    
+    elif check_winner() == current_player:
+        turn_indicator.config(text = f"{current_player} wins!")
+        for button in buttons.values():
+            button.config(state = tk.DISABLED)
+            
+    elif check_winner() == False:
+        for button in buttons.values():
+            button.config(state = tk.DISABLED)
+            button.config(bg = "#FFFF00")
+        turn_indicator.config(text = "It's a draw!")           
+
+#Check for winner
+def check_winner():
+ 
+    #Check for draw
+    for button in buttons.values():
+        if button["text"] == "":
+            break
+    else:  
+        return False
+    
+    for combo in winning_combos:
+
+        if buttons[combo[0]]["text"] == buttons[combo[1]]["text"] == buttons[combo[2]]["text"] != "": 
+        
+            buttons[combo[0]]["bg"] = buttons[combo[1]]["bg"] = buttons[combo[2]]["bg"] = "#00FF00"    
+        
+            return current_player
+
+    else:
+        return None
+
+#Restarts game
+def restart_game():
+    
+    for button in buttons.values():
+        button.config(text = "", bg = "#f0f0f0")
+    
+    turn_indicator.config(text = f"{current_player}'s turn", font = ("Arial", 20))    
+    
+    #how to reset turn indicator?
+       
+#Initialize variables
+players = ["X", "O"]
+first_player = random.choice(players) #set first player
+current_player = first_player
+
+#Check all winning combinations
+winning_combos = [
+                #Horizontal
+                [(0,0), (0,1), (0,2)],
+                [(1,0), (1,1), (1,2)],
+                [(2,0), (2,1), (2,2)],  
+
+                #Vertical
+                [(0,0),(1,0), (2,0)],
+                [(0,1), (1,1), (2,1)],
+                [(0,2), (1,2), (2,2)],
+
+                #Diagonal
+                [(0,0), (1,1), (2,2)],
+                [(0,2), (1,1), (2,0)]
+                ] 
+                
+#Create game board
+root = tk.Tk()
+root.title("TicTacToe v1 by Ryan")
+root.geometry("400x400")
+
+turn_indicator = tk.Label(text = f"{current_player}'s turn", font = ("Arial", 20)) #Turn indicator
+turn_indicator.pack(pady = 10)
+
+board = tk.Frame()
+board.pack(pady = 10)
+
+restart_button = tk.Button(text = "Restart Game", font = ("Arial", 12), command = restart_game)
+restart_button.pack(pady = 10)
+
+#Create buttons
+buttons = {}
+
+for row in range(0,3):
+    for column in range(0,3):
+        button = tk.Button(board, width = 10, height = 5, text = "", command = lambda row = row, column = column: button_press(row, column))
+        button.grid(row = row, column = column)
+        buttons[(row, column)] =  button #Stores the button in an identifiable dictionary, with index tuple as key
+
+tk.mainloop()

@@ -1,0 +1,61 @@
+#Counter App
+#Objective: Build a simple counter with two buttons: one to increase the count and one to decrease it. Display the count in a label.
+
+import tkinter as tk
+
+#Define key functions
+def update_label():
+    label_text.set(f"Clicks: {count.get()}")
+
+def decrease_counter():
+    if count.get() == 0:
+        print("Count cannot be less than 0")
+    else:
+        count.set(count.get() - 1)
+        update_label()
+
+def increase_counter():
+    count.set(count.get() + 1)
+    update_label()
+
+#Initialize window
+root = tk.Tk()
+root.geometry("800x400")
+frame = tk.Frame()
+
+#Initialize variables
+count = tk.IntVar(value = 0)
+label_text = tk.StringVar()
+label_text.set(f"Clicks: {count.get()}") #Initialize with f string
+
+title = tk.Label(root,
+                 text = "Counter",
+                 font = ("Arial", 14))
+
+counter_label = tk.Label(frame,
+                         textvariable = label_text,
+                         font = ("Arial", 14),
+                         )
+
+increase_count = tk.Button(frame,
+                         bg = "#00FF00",
+                         width = 20,
+                         height = 10,
+                         text  = "+1",
+                         command = increase_counter)
+
+decrease_count = tk.Button(frame,
+                         bg = "#FF0000",
+                         width = 20,
+                         height = 10,
+                         text  = "-1",
+                         command = decrease_counter)
+
+#Place all components
+title.pack(pady = 40)
+frame.pack(pady = 0)
+counter_label.pack(pady = 20)
+increase_count.pack(side = "left", padx = 40)
+decrease_count.pack(side = "left", padx = 40) 
+
+tk.mainloop()

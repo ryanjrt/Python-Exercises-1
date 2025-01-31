@@ -1,0 +1,48 @@
+import tkinter as tk
+
+root = tk.Tk()
+root.title("Select your pill")
+root.geometry("600x400")
+
+def blue_click():
+    root.config(bg = "#0000FF")
+    button_frame.config(bg = "#0000FF")
+
+def red_click():
+    root.config(bg = "#FF0000")
+    button_frame.config(bg = "#FF0000")
+    
+def black_click():
+    root.config(bg = "#000000")
+    button_frame.config(bg = "#000000")
+    
+header = tk.Label(text = "Please select your pill. Choose wisely.",
+                  font = ("Arial", 12))
+
+button_frame = tk.Frame(root)
+
+button_blue = tk.Button(button_frame,
+                        bg = "#0000FF",
+                        command=blue_click,
+                        height = 5,
+                        width = 10)
+
+button_red = tk.Button(button_frame, 
+                       bg = "#FF0000",
+                        command=red_click,
+                        height = 5,
+                        width = 10)
+
+button_black = tk.Button(button_frame, 
+                        bg = "#000000",
+                        command=black_click,
+                        height = 5,
+                        width = 10)
+
+header.pack(pady = 20)
+button_frame.pack(pady = 80)
+button_blue.pack(side = "left", padx = 20)
+button_red.pack(side = "left", padx = 20)
+button_black.pack(side = "left", padx = 20)
+
+tk.mainloop()
