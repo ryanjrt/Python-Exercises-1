@@ -1,0 +1,212 @@
+import tkinter as tk
+import random
+
+class Player:
+    def __init__(self):
+        self.body_parts = 5
+        self.snake_speed = 200 #per second
+        
+        directions = [[1,0], [0,1], [-1,0], [0,-1]]
+        self.current_direction = random.choice(directions)
+
+class Food:
+    def __init__(self, game, width, height, space_size):
+
+        food_coord_x = random.randint(0, (width - space_size) // space_size) * space_size
+        food_coord_y = random.randint(0, (height - space_size) // space_size) * space_size
+        
+        self.food_square = game.canvas.create_rectangle(food_coord_x, 
+                                        food_coord_y, 
+                                        food_coord_x + space_size, 
+                                        food_coord_y + space_size,
+                                        fill = "#00ff00",
+                                        tag = "food"
+                                        )   
+        
+        self.food_coordinates = [food_coord_x, food_coord_y]
+        
+class SnakeGame:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("Snake v1")
+        
+        #Initialize attributes
+        self.score = tk.IntVar(value = 0)
+        self.scoretext = tk.StringVar(value = "Score: ")
+        self.canvas = None #Initializes canvas before updated in start_game
+        self.space_size = 30
+        self.width = 0
+        self.height = 0
+        
+        # Initialize player and start game
+        self.player = Player() 
+        self.start_game()
+        
+        #Keybinds    
+        self.root.bind('<Left>', lambda event: self.handle_keypress(event)) 
+        self.root.bind('<Right>', lambda event: self.handle_keypress(event))
+        self.root.bind('<Up>', lambda event: self.handle_keypress(event)) 
+        self.root.bind('<Down>', lambda event: self.handle_keypress(event))      
+           
+    def run(self):
+        self.root.mainloop()
+            
+    def start_game(self):     
+        #Create game board
+        self.scoreboard = tk.Label(
+            self.root,
+            textvariable = self.scoretext,
+            font = ('Arial', 15)
+        )
+        self.scoreboard.pack(pady = 10)
+        
+        self.canvas = tk.Canvas(
+            self.root,
+            bg = "#ffffff",
+            width = 900,
+            height = 500
+        )
+        self.canvas.pack(
+            fill = "both",
+            expand = True
+        )
+        self.root.update() #Update root window
+        
+        #Calculate constants
+        self.width = self.canvas.winfo_width() #After canvas dimensions are defined
+        self.height = self.canvas.winfo_height() #After canvas dimensions are defined
+        space_size = self.space_size
+  
+                        
+        x_init = random.randint(0, (self.width - space_size) // space_size) * space_size #Makes sure coordinate is an integer multiple of space_size 
+        y_init = random.randint(0, (self.height - space_size) // space_size) * space_size #Makes sure coordinate is an integer multiple of space_size
+        
+        #print(f"Initial coordinates: {x_init}, {y_init}") #Check the values
+    
+        self.coordinates = []
+        self.squares = []
+    
+        #Create initial coordinate and snake head
+        self.coordinates.append([x_init, y_init])
+        
+        #Create food
+        self.food = Food(self, self.width, self.height, space_size)
+        self.root.after(self.player.snake_speed, self.next_turn)
+         
+    def next_turn(self):
+        direction = self.player.current_direction
+        space_size = self.space_size
+        
+        #If snake eats food
+        if self.coordinates[0] == self.food.food_coordinates:
+            self.update_scoreboard()
+            
+            self.player.body_parts +=1
+            self.canvas.delete(self.food.food_square)
+            self.food = Food(self, self.width, self.height, space_size)
+
+        #Check for collisions
+        if self.check_collisions() != True:
+            self.root.after(self.player.snake_speed, self.next_turn)
+        else:
+            self.end_game()
+                    
+        dxdy = [j * space_size for j in direction]
+        
+        new_x = self.coordinates[0][0] + dxdy[0]
+        new_y = self.coordinates[0][1] + dxdy[1]
+        
+        self.coordinates.insert(0, [new_x, new_y])
+        
+
+
+        
+        if len(self.coordinates) > self.player.body_parts:
+            tail = self.coordinates.pop()
+            #print(f"tail coordinates: {tail}") #DEBUG
+        
+        #Simulate snake movement
+        for x, y in self.coordinates:
+            square = self.canvas.create_rectangle(x, 
+                                        y, 
+                                        x + space_size, 
+                                        y + space_size,
+                                        fill = "#ff0000",
+                                        tag = "snake"
+                                        )    
+            self.squares.append(square)   
+            
+        # Delete the corresponding square from the canvas (if you're tracking squares)
+            if len(self.squares) > self.player.body_parts: #check if the list is not empty 
+                tail_square = self.squares.pop(0)
+                self.canvas.delete(tail_square)
+        
+        #SPEND SOME MORE TIME TO INTUIT
+        #for i in range(len(self.coordinates)-1, 0, -1):
+        #     self.coordinates[i][0] = self.coordinates[i-1][0]
+        #     self.coordinates[i][1] = self.coordinates[i-1][1]
+        #     print(self.coordinates)
+        # pass
+    
+    def update_scoreboard(self):
+        self.score.set(self.score.get() + 1) 
+        self.scoretext.set(f"Score: {self.score.get()}")
+    
+    def check_collisions(self):
+        if (self.coordinates[0][0] > self.width) or ((self.coordinates[0][0] < 0)) or (self.coordinates[0][1] > self.height) or ((self.coordinates[0][1] < 0)):
+            return True
+        
+        for body_parts in self.coordinates[1:]:
+            if self.coordinates[0] == body_parts:
+                return True
+        
+        return None
+            
+        
+        
+    def end_game(self):
+        print("Game over!")
+        pass
+    
+    def handle_keypress(self, event):
+        
+        direction = self.player.current_direction
+        
+        if event.keysym == "Left":
+            new_direction = self.compute_new_direction(direction, "left")
+        elif event.keysym == "Right":
+            new_direction = self.compute_new_direction(direction, "right")
+        elif event.keysym == "Up":
+            new_direction = self.compute_new_direction(direction, "up")
+        elif event.keysym == "Down":
+            new_direction = self.compute_new_direction(direction, "down")
+        else:
+            return
+
+        if new_direction:
+            self.player.current_direction = new_direction
+    
+    def compute_new_direction(self, current_direction, get_direction):
+        if get_direction == "left":
+            if current_direction[0] != [1]:
+                return [-1,0]
+            
+        if get_direction == "right":    
+            if current_direction[0] != -1:
+                return [1,0]    
+
+        if get_direction == "up":             
+            if current_direction[1] != 1:
+                return [0,-1]            
+            
+        if get_direction == "down":             
+            if current_direction[1] != -1:
+                return [0,1]
+        
+        else:
+            return None
+                
+if __name__ == "__main__":
+    #root = tk.Tk()
+    game = SnakeGame()
+    game.run()
