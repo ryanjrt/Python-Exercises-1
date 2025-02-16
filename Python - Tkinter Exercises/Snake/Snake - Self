@@ -215,6 +215,5 @@ class SnakeGame:
             return None
                 
 if __name__ == "__main__":
-    #root = tk.Tk()
     game = SnakeGame()
     game.run()
