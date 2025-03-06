@@ -3,8 +3,10 @@ from typing import Optional, List, Tuple
 from openai import OpenAI
 import os, logging
 
-
+# ============================
 # Set up logging configuration
+# ============================
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -16,7 +18,9 @@ logger = logging.getLogger(__name__)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 model = "gpt-4o-mini"
 
+# ===========================================
 # Step 1 - Define data models for each stage
+# ===========================================
 
 class Context(BaseModel):
     """First LLM call: Extract any inputs provided by user"""
@@ -26,11 +30,14 @@ class Context(BaseModel):
     requirements: Optional[List[str]] = Field(default_factory=list, input="Extract any requirements provided (e.g. diet type, vitamin needs)")
     
 class Fidelity(BaseModel):
-    """Parallel LLM call: Assess level of fidelity required by user"""
+    """Parallel LLM call: Assess level of fidelity given by user"""
     
     fidelity: str = Field(input="How detailed are the requested recommendations [low, medium, high]")
+    fidelity_score: float = Field(description="How detailed is the request between 0 and 1, with being the highest. Consider detail of goals, constraints and requirements.")
 
+# ==========================================
 # Step 2 - Define functions
+# ==========================================
 
 def extract_details(input: str) -> Context:
     """First LLM call to extract user details"""
@@ -76,10 +83,11 @@ def fidelity_level(input: str) -> Fidelity:
     
     logger.info(f"Tokens spent: {completion.usage.total_tokens}")
     result_2 = completion.choices[0].message.parsed
-
+    print(result_2)
     return result_2
 
 def identify_missing_details(details: Context):
+    
     missing_fields = []
     present_fields = []
     prompt = []
@@ -119,7 +127,7 @@ def request_info(prompt2: str):
         messages = [
             {
                 "role" : "system",
-                "content" : "You are a helpful nutritionist that asks clarifying questions."
+                "content" : "You are a helpful nutritionist that asks clarifying questions. Split questions into 3 possible categories: goals, constraints, resources"
             },
             {
                 "role" : "user",
@@ -159,7 +167,9 @@ def nutrition_assessment(final_prompt):
     
     return completion.choices[0].message.content
 
+# ==========================================
 # Testing functions
+# ==========================================
 
 user_input = "Please create a meal plan for me, I want to lose weight by 5 kgs"
 
