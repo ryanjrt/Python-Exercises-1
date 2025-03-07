@@ -1,0 +1,5 @@
+# Ensure Unix-style line endings for all text files
+* text=auto
+
+# Explicitly set line endings for shell scripts
+*.sh eol=lf
