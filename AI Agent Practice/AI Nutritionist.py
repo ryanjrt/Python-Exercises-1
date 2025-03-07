@@ -25,10 +25,7 @@ model = "gpt-4o-mini"
 class Context(BaseModel):
     """First LLM call: Extract any inputs provided by user"""
     
-    goals: List[str] = Field(default_factory=list, input="Extract fitness / diet goals")
-    constraints: Optional[List[str]] = Field(default_factory=list, input="Extract any constraints (e.g. allergies, caloric deficit)")
-    requirements: Optional[List[str]] = Field(default_factory=list, input="Extract any requirements provided (e.g. diet type, vitamin needs)")
-    
+    user_request: str = Field(default_factory=list, input="Extract user nutrition requests (goals, constraints, requirements)")    
 class Fidelity(BaseModel):
     """Parallel LLM call: Assess level of fidelity given by user"""
     
@@ -39,6 +36,7 @@ class Fidelity(BaseModel):
 # Step 2 - Define functions
 # ==========================================
 
+# Extract any relevant details provided in original prompt
 def extract_details(input: str) -> Context:
     """First LLM call to extract user details"""
     logger.info("Extracting user provided details")
@@ -57,6 +55,7 @@ def extract_details(input: str) -> Context:
         ],
         response_format = Context,
     )
+    
     result = completion.choices[0].message.parsed
     logger.info(f"Tokens spent: {completion.usage.total_tokens}")
     return result
@@ -84,43 +83,9 @@ def fidelity_level(input: str) -> Fidelity:
     logger.info(f"Tokens spent: {completion.usage.total_tokens}")
     result_2 = completion.choices[0].message.parsed
     print(result_2)
-    return result_2
+    return result_2        
 
-def identify_missing_details(details: Context):
-    
-    missing_fields = []
-    present_fields = []
-    prompt = []
-    
-    if not details.goals:
-        missing_fields.append("goals")
-    else:
-        present_fields.append(f"Goals are: {details.goals}")
-        
-    if not details.constraints:
-        missing_fields.append("constraints")
-    else:
-        present_fields.append(f"Constraints are: {details.constraints}")
-        
-    if not details.requirements:
-        missing_fields.append("requirements")
-    else:
-        present_fields.append(f"Requirements are: {details.requirements}")
-    
-    if present_fields:
-        present_fields_str = ', '.join(present_fields)
-        prompt = f"The user has specified the following: {present_fields_str}."
-        
-    if missing_fields:
-        missing_fields_str = ', '.join(missing_fields)
-        prompt2 = prompt + f"Please ask relevant questions for the user's: {missing_fields_str}."
-        
-    logger.info(f"Present fields: {present_fields}, Missing fields: {missing_fields}")
-    
-    return prompt2
-        
-
-def request_info(prompt2: str):
+def request_info(info: str):
 
     completion = client.beta.chat.completions.parse(
         model = model,
@@ -131,7 +96,7 @@ def request_info(prompt2: str):
             },
             {
                 "role" : "user",
-                "content" : prompt2
+                "content" : info
             }
         ],
     )
@@ -153,7 +118,8 @@ def nutrition_assessment(final_prompt):
         messages = [
             {
                 "role" : "system",
-                "content" : "You are a helpful nutritionist and dietician."
+                "content" : "You are a helpful nutritionist and dietician.\
+                    Please refer directly to user's input and state your reasoning."
             },
             {
                 "role" : "user",
@@ -168,15 +134,14 @@ def nutrition_assessment(final_prompt):
     return completion.choices[0].message.content
 
 # ==========================================
-# Testing functions
+# Testing function flow
 # ==========================================
 
-user_input = "Please create a meal plan for me, I want to lose weight by 5 kgs"
+user_input = "Please create a meal plan for me, I want to lose weight by 5 kgs with only a vegetarian diet."
 
 details = extract_details(user_input)
 fidel = fidelity_level(user_input)
-prompt2 = identify_missing_details(details)
-add_context = request_info(prompt2)
+add_context = request_info(details.user_request)
 
 # Append extra input to current prompt
 final_prompt = user_input + add_context

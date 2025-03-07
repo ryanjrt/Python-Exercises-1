@@ -17,7 +17,7 @@ def get_news_headlines(query, searchin, start_date, rank, page_size):
         'date' : start_date,
         'sortBy' : rank,
         'pageSize' : page_size,
-        'apiKey' : "efcac2e2900c4b1f81fea1705ec84b47"
+        'apiKey' : str(os.getenv("NEWS_API_KEY"))
         }
 
     encoded_params = urllib.parse.urlencode(params)
@@ -42,7 +42,7 @@ system_prompt = "You are a news summarizer that extracts news headlines and summ
 
 messages = [
     {"role": "system", "content": system_prompt},
-    {"role": "user", "content": f"What are the headlines for US tariffs saying on 5 March 2025? Only retrieve the top 10 headlines."},
+    {"role": "user", "content": f"What are the headlines for Bitcoin saying on 5 March 2025? Only retrieve the top 10 headlines."},
 ]
 
 tools = [
